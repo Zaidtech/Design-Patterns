@@ -1,6 +1,6 @@
 package singleton;
 
-/**
+/** The LAZY way
  * Singleton: Only one object can be created for this class
  * That means, I cannot expose the constructor (make it private!!)
  *
@@ -9,7 +9,7 @@ package singleton;
  *
  * */
 public class Shape {
-    /**Will be null by default*/
+    /*Will be null by default*/
     static Shape shape;
 
     /**

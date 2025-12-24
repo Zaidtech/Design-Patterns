@@ -1,0 +1,4 @@
+1. Singleton is used when we want to have only one instance of an object, example JDBC connection.
+2. Eager initialization is not scalable as too many objects present even when not required.
+3. Lazy initialization approach discussed in Shape.java class works, but is not thread safe.
+4. Usage of a synchronized block is implemented in the  ShapeThreadSafe.java class.
