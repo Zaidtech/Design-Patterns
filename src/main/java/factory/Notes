@@ -1,0 +1,9 @@
+When we have a superclass and various subclasses. And we
+want to have based on inputs the objects of the subclass.
+Then we use factory design pattern.
+
+Advantage:
+
+1. We can based on conditions or inputs decide whcih object to create
+2. Loose coupling is enabled using this.
+
