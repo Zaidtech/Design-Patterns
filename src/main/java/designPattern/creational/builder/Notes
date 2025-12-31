@@ -1,0 +1,7 @@
+1. We have to pass too many parameters into constructor to create an object
+2. We have to maintain the order and if some are optional or not then? Create new constructor
+3. All object creation  is given to the factory class!!
+
+To solve these patterns.
+1. We create object step by step.
+2. We have used this in Lombock annotations.

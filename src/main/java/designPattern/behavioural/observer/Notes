@@ -1,0 +1,2 @@
+1. Behavioural Design pattern: Tells about how will objects interact with each other
+2. In this if the subject chanegs the state all the dependent objects notified the change.

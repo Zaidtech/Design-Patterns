@@ -1,4 +1,4 @@
-package designPattern.abstractFactory;
+package designPattern.creational.abstractFactory;
 
 public class HrFactory extends AbstractEmployeeFactory {
     @Override

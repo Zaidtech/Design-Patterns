@@ -1,4 +1,4 @@
-package singleton;
+package designPattern.creational.singleton;
 
 public class ShapeReflectionSafe {
 

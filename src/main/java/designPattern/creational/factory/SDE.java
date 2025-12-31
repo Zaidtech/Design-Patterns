@@ -1,4 +1,4 @@
-package factory;
+package designPattern.creational.factory;
 
 public class SDE implements IEmployee{
 

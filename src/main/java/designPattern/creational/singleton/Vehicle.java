@@ -1,4 +1,4 @@
-package singleton;
+package designPattern.creational.singleton;
 
 /**This is the EAGER way of making the singleton class
  *

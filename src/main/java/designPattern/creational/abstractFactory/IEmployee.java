@@ -1,4 +1,4 @@
-package designPattern.abstractFactory;
+package designPattern.creational.abstractFactory;
 
 public interface IEmployee {
     int getSalary();

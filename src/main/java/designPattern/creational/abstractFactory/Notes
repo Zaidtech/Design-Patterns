@@ -1,0 +1,4 @@
+1. Brings an additional layer of abstraction
+2. The immediate factory itself does not know the object being returned.
+3. Only the custom implementation knows about it.
+4. Factory of Factories!!!

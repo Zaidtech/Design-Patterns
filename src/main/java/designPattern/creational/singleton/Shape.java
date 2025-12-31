@@ -1,4 +1,4 @@
-package singleton;
+package designPattern.creational.singleton;
 
 /** The LAZY way
  * Singleton: Only one object can be created for this class

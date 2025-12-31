@@ -1,6 +1,6 @@
 package designPattern;
 
-import singleton.*;
+import designPattern.creational.singleton.*;
 
 import java.lang.reflect.*;
 

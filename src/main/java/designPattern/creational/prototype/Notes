@@ -1,0 +1,22 @@
+1. It's a creational design pattern
+2. Used to create a copy of the object.
+
+The idea is to not make another copy of object instead re-use the existing as creation
+is a costly process.
+Saves cost, resource and time.
+
+use the clone() method.
+For making a class as clonable we will implement the class using Clonable interface.
+It's a marker interface which tells we can clone objects.
+
+
+Deep copy vs shallow copy
+
+In shallow copy: Primitive values are copied reference are not.
+In deep copy: We need to override the clone method. References are also copied.
+
+
+
+
+
+
