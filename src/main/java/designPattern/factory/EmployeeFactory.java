@@ -1,4 +1,4 @@
-package factory;
+package designPattern.factory;
 /**This will have the emlpoyee methods which will return employee based on inputs*/
 public class EmployeeFactory {
 

@@ -1,4 +1,4 @@
-package factory;
+package designPattern.factory;
 
 public class Company {
 
