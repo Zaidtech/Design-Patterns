@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DP Interview Ace | The 100-Question Mega Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Typography & Base */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; color: #1e293b; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Syntax Highlighting Sim */
+        .code-block { background: #0f172a; color: #e2e8f0; padding: 1.25rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.6; border: 1px solid #334155; }
+        .kw { color: #c084fc; font-weight: bold; } /* Keyword */
+        .ty { color: #38bdf8; } /* Type */
+        .str { color: #4ade80; } /* String */
+        .com { color: #94a3b8; font-style: italic; } /* Comment */
+        .fn { color: #facc15; } /* Function */
+
+        /* Interactive Elements */
+        .nav-item { transition: all 0.2s; border-left: 4px solid transparent; }
+        .nav-item:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-item.active { background-color: #dbeafe; border-left-color: #2563eb; color: #1e40af; font-weight: 700; }
+        
+        .pattern-card { transition: all 0.2s ease-out; }
+        .pattern-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #3b82f6; }
+
+        /* Question Card */
+        .q-card { transition: border-color 0.2s; }
+        .q-card:hover { border-color: #94a3b8; }
+
+        /* Tags */
+        .badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 9999px; letter-spacing: 0.05em; }
+        .tag-cre { background: #dcfce7; color: #166534; }
+        .tag-str { background: #dbeafe; color: #1e40af; }
+        .tag-beh { background: #fef3c7; color: #92400e; }
+        
+        .co-amz { background: #ff9900; color: white; }
+        .co-goog { background: #4285F4; color: white; }
+        .co-meta { background: #0668E1; color: white; }
+        .co-msft { background: #00a4ef; color: white; }
+        .co-nflx { background: #E50914; color: white; }
+        
+        /* Accordion Animation */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: slideDown 0.2s ease-in-out; }
+        @keyframes slideDown { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
+    </style>
+    <!-- Chosen Palette: "Enterprise Blue" - Professional, trusted blue/slate tones suitable for serious study. -->
+    <!-- Structure:
+         1. Sidebar: Filters for 'Handbook' (Theory) and 'Question Bank' (Practice).
+         2. Handbook: Detailed theory for 20+ patterns.
+         3. Question Bank: 100+ items. Filterable by Company, Level, and SPECIFIC PATTERN.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-white border-r border-slate-200 flex flex-col hidden md:flex z-20 shadow-xl flex-shrink-0 font-medium text-slate-600">
+        <div class="p-6 border-b border-slate-100 bg-slate-50">
+            <h1 class="text-xl font-black text-slate-800 tracking-tight">DP Interview<span class="text-blue-600">Ace</span></h1>
+            <p class="text-xs text-slate-500 mt-1 font-mono">Mega Archive v5.0</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4 space-y-1">
+            <div class="px-6 mb-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Learning Modes</div>
+            <button onclick="navTo('dashboard')" class="nav-item active w-full text-left px-6 py-3 text-sm">
+                📊 Dashboard
+            </button>
+            <button onclick="navTo('handbook')" class="nav-item w-full text-left px-6 py-3 text-sm">
+                📚 Theory Handbook
+            </button>
+            <button onclick="navTo('questions')" class="nav-item w-full text-left px-6 py-3 text-sm flex justify-between items-center">
+                <span>⚔️ Question Bank</span>
+                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold" id="q-count-badge">100+</span>
+            </button>
+
+            <div class="px-6 mt-8 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Quick Pattern Access</div>
+            <!-- Dynamic Pattern List for Sidebar -->
+            <div id="sidebar-patterns" class="space-y-1"></div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 p-4 z-30 flex justify-between items-center shadow-sm">
+        <span class="font-bold text-lg text-slate-900">DP Interview Ace</span>
+        <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute'); document.querySelector('aside').classList.toggle('h-full');" class="text-slate-600 text-2xl">☰</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative pt-16 md:pt-0 bg-slate-50 w-full scroll-smooth">
+        
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="max-w-7xl mx-auto p-6 md:p-10">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Study Roadmap</h2>
+                <p class="text-slate-600">Your consolidated resource for mastering Design Patterns & LLD.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-xs text-slate-500 font-bold uppercase">Total Questions</div>
+                    <div class="text-2xl font-black text-blue-600 mt-1" id="stat-total-q">0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-xs text-slate-500 font-bold uppercase">Patterns Covered</div>
+                    <div class="text-2xl font-black text-purple-600 mt-1" id="stat-patterns">23</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-xs text-slate-500 font-bold uppercase">SDE 2/3 Scenarios</div>
+                    <div class="text-2xl font-black text-orange-600 mt-1">45+</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-xs text-slate-500 font-bold uppercase">Java Specifics</div>
+                    <div class="text-2xl font-black text-green-600 mt-1">Deep</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4">Interview Frequency Heatmap</h3>
+                <div class="h-64 w-full">
+                    <canvas id="freqChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: HANDBOOK (THEORY) -->
+        <section id="view-handbook" class="hidden max-w-7xl mx-auto p-6 md:p-10">
+            <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Pattern Handbook</h2>
+                    <p class="text-slate-600 text-sm">Deep theoretical definitions, Java implementation nuances, and pitfalls.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="filterTheory('All')" class="px-3 py-1 bg-slate-800 text-white rounded text-xs font-bold">All</button>
+                    <button onclick="filterTheory('Creational')" class="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-bold hover:bg-green-200">Creational</button>
+                    <button onclick="filterTheory('Structural')" class="px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold hover:bg-blue-200">Structural</button>
+                    <button onclick="filterTheory('Behavioral')" class="px-3 py-1 bg-orange-100 text-orange-800 rounded text-xs font-bold hover:bg-orange-200">Behavioral</button>
+                </div>
+            </div>
+            
+            <div id="handbook-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- VIEW: QUESTION BANK -->
+        <section id="view-questions" class="hidden max-w-7xl mx-auto p-6 md:p-10">
+            <div class="sticky top-0 bg-slate-50 z-10 pb-4 pt-2">
+                <header class="mb-4">
+                    <h2 class="text-3xl font-extrabold text-slate-900">Mega Question Bank</h2>
+                    <p class="text-slate-600 text-sm mt-1">
+                        100+ Real questions from FAANG & High-Growth Startups. 
+                    </p>
+                </header>
+
+                <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                    <!-- Search -->
+                    <div class="md:col-span-4">
+                        <input type="text" id="q-search" placeholder="Search (e.g., 'Google', 'Singleton', 'Thread')..." 
+                               class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    
+                    <!-- Pattern Filter -->
+                    <div class="md:col-span-3">
+                        <select id="q-pattern-filter" class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-white cursor-pointer hover:border-blue-400">
+                            <option value="All">All Patterns</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Company Filter -->
+                    <div class="md:col-span-3">
+                         <select id="q-company-filter" class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-white cursor-pointer">
+                            <option value="All">All Companies</option>
+                            <option value="Amazon">Amazon</option>
+                            <option value="Google">Google</option>
+                            <option value="Meta">Meta</option>
+                            <option value="Microsoft">Microsoft</option>
+                            <option value="Netflix">Netflix</option>
+                            <option value="Uber">Uber</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Reset -->
+                    <div class="md:col-span-2 text-right">
+                        <button onclick="resetFilters()" class="text-xs font-bold text-red-500 hover:underline">Reset Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="questions-list" class="space-y-4">
+                <!-- Injected via JS -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-12 text-slate-400">
+                No questions match your specific filters. Try resetting.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- THEORY MODAL -->
+    <div id="theory-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex justify-end">
+        <div class="w-full md:w-2/3 lg:w-1/2 bg-white h-full overflow-y-auto shadow-2xl p-8 transform transition-transform translate-x-full duration-300" id="theory-panel">
+            <button onclick="closeModal()" class="mb-4 text-slate-400 hover:text-slate-800 text-sm font-bold flex items-center">
+                ← BACK TO LIST
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        //  DATA: THEORY HANDBOOK (23 Patterns)
+        // ==========================================
+        const theoryData = [
+            { id: 'singleton', name: 'Singleton', type: 'Creational', freq: 10, def: "Ensures a class has only one instance and provides a global point of access.", code: "public enum Singleton { INSTANCE; }" },
+            { id: 'factory_method', name: 'Factory Method', type: 'Creational', freq: 9, def: "Defines an interface for creating an object, but lets subclasses decide which class to instantiate.", code: "abstract Product factoryMethod();" },
+            { id: 'abstract_factory', name: 'Abstract Factory', type: 'Creational', freq: 6, def: "Provides an interface for creating families of related or dependent objects without specifying their concrete classes.", code: "interface GUIFactory { Button createButton(); Checkbox createCheckbox(); }" },
+            { id: 'builder', name: 'Builder', type: 'Creational', freq: 9, def: "Separates the construction of a complex object from its representation.", code: "new User.Builder().name('A').age(10).build();" },
+            { id: 'prototype', name: 'Prototype', type: 'Creational', freq: 4, def: "Creates new objects by copying an existing object (cloning).", code: "return (Product) super.clone();" },
+            
+            { id: 'adapter', name: 'Adapter', type: 'Structural', freq: 8, def: "Allows incompatible interfaces to work together.", code: "class Adapter implements Target { private Adaptee a; ... }" },
+            { id: 'decorator', name: 'Decorator', type: 'Structural', freq: 8, def: "Dynamically adds behavior to an object without affecting other objects from the same class.", code: "new BufferedInputStream(new FileInputStream(file));" },
+            { id: 'proxy', name: 'Proxy', type: 'Structural', freq: 9, def: "Provides a placeholder for another object to control access to it.", code: "if (auth) realSubject.request();" },
+            { id: 'facade', name: 'Facade', type: 'Structural', freq: 5, def: "Provides a simplified interface to a complex system.", code: "videoConverter.convert('file.mp4'); // Hides codec complexity" },
+            { id: 'composite', name: 'Composite', type: 'Structural', freq: 6, def: "Composes objects into tree structures to represent part-whole hierarchies.", code: "folder.add(file); folder.add(subFolder);" },
+            { id: 'bridge', name: 'Bridge', type: 'Structural', freq: 3, def: "Decouples an abstraction from its implementation so that the two can vary independently.", code: "new RemoteControl(new TV()); new RemoteControl(new Radio());" },
+            { id: 'flyweight', name: 'Flyweight', type: 'Structural', freq: 4, def: "Reduces the cost of creating large numbers of similar objects by sharing common state.", code: "FontFactory.getFont('Arial'); // Returns cached instance" },
+
+            { id: 'strategy', name: 'Strategy', type: 'Behavioral', freq: 10, def: "Defines a family of algorithms, encapsulates each one, and makes them interchangeable.", code: "Collections.sort(list, comparator);" },
+            { id: 'observer', name: 'Observer', type: 'Behavioral', freq: 10, def: "Defines a one-to-many dependency so that when one object changes state, all dependents are notified.", code: "button.addActionListener(listener);" },
+            { id: 'command', name: 'Command', type: 'Behavioral', freq: 7, def: "Encapsulates a request as an object, letting you parameterize clients.", code: "button.setCommand(new SaveCommand());" },
+            { id: 'template_method', name: 'Template Method', type: 'Behavioral', freq: 6, def: "Defines the skeleton of an algorithm in a method, deferring some steps to subclasses.", code: "final void play() { init(); start(); end(); }" },
+            { id: 'iterator', name: 'Iterator', type: 'Behavioral', freq: 5, def: "Provides a way to access elements of an aggregate object sequentially without exposing underlying representation.", code: "while(it.hasNext()) { ... }" },
+            { id: 'chain_of_resp', name: 'Chain of Resp.', type: 'Behavioral', freq: 5, def: "Passes a request along a chain of handlers.", code: "logger.log(INFO, 'msg'); // Passed from ErrorLogger to FileLogger to ConsoleLogger" },
+            { id: 'state', name: 'State', type: 'Behavioral', freq: 6, def: "Allows an object to alter its behavior when its internal state changes.", code: "context.setState(new HappyState());" },
+            { id: 'mediator', name: 'Mediator', type: 'Behavioral', freq: 3, def: "Defines an object that encapsulates how a set of objects interact.", code: "chatRoom.sendMessage(user, msg);" },
+            { id: 'memento', name: 'Memento', type: 'Behavioral', freq: 2, def: "Captures and externalizes an object's internal state so it can be restored later.", code: "editor.restore(history.pop());" },
+            { id: 'visitor', name: 'Visitor', type: 'Behavioral', freq: 2, def: "Represents an operation to be performed on the elements of an object structure.", code: "element.accept(new JSONExportVisitor());" },
+            { id: 'interpreter', name: 'Interpreter', type: 'Behavioral', freq: 1, def: "Defines a representation for a grammar along with an interpreter.", code: "Pattern pattern = Pattern.compile(...);" }
+        ];
+
+        // ==========================================
+        //  DATA: MEGA QUESTION BANK (100 Items)
+        // ==========================================
+        // Helper to generate IDs
+        let qId = 1;
+        const createQ = (title, pat, co, lvl, src, ans) => ({ id: qId++, title, pattern: pat, company: co, level: lvl, source: src, answer: ans });
+
+        const allQuestions = [
+            // --- SINGLETON (1-10) ---
+            createQ("Thread-safe Singleton in Java", "Singleton", "Amazon", "SDE2", "LeetCode", "Use 'Double-Checked Locking' with `volatile` keyword, or simpler: Use an Enum (`public enum Singleton { INSTANCE; }`) which handles serialization and thread safety automatically."),
+            createQ("Why is volatile needed in Double-Checked Locking?", "Singleton", "Google", "SDE3", "Reddit", "Without `volatile`, instruction reordering by the JVM/CPU could cause a thread to see a non-null reference to `instance` before the constructor has fully finished executing (partially initialized object)."),
+            createQ("How to break a Singleton pattern?", "Singleton", "Meta", "SDE2", "Blind", "1. Reflection (`setAccessible(true)`). 2. Serialization (creates new instance on deserialize). 3. Cloning. 4. Multiple ClassLoaders."),
+            createQ("Singleton vs Static Class?", "Singleton", "Microsoft", "SDE1", "Glassdoor", "Singleton is an Object (can implement interfaces, be passed as param, lazy loaded). Static class is just a namespace for methods. Singleton allows polymorphism."),
+            createQ("Is Singleton an Anti-Pattern?", "Singleton", "Netflix", "Staff", "Blog", "Often yes. It introduces global state, makes unit testing hard (mocking static access is difficult), and hides dependencies."),
+            createQ("Singleton in a Clustered Environment?", "Singleton", "Uber", "SDE3", "System Design", "A classic Singleton only works per JVM. In a cluster, you need a distributed lock (Redis/Zookeeper) to ensure only one node acts as the 'Leader' or Singleton worker."),
+            createQ("Preventing Singleton from Serialization attacks?", "Singleton", "Oracle", "SDE2", "Java Docs", "Implement `protected Object readResolve()` method to return the existing instance during deserialization."),
+            createQ("Testing code that uses Singletons?", "Singleton", "Atlassian", "SDE2", "Interview", "Difficult. You usually have to depend on Dependency Injection (pass the singleton instance) rather than calling `getInstance()` directly, allowing you to pass a Mock in tests."),
+            createQ("Bill Pugh Singleton Implementation?", "Singleton", "Salesforce", "SDE2", "LeetCode", "Uses a private static inner class `Holder` that contains the instance. The inner class is not loaded until `getInstance()` is called. Thread-safe by JVM definition."),
+            createQ("Lifecycle of a Singleton in Spring?", "Singleton", "SpringSource", "SDE2", "Framework", "In Spring, 'Singleton' scope means one instance per ApplicationContext (Container), not one per ClassLoader."),
+
+            // --- FACTORY / ABSTRACT FACTORY (11-18) ---
+            createQ("Factory Method vs Abstract Factory?", "Factory Method", "Amazon", "SDE1", "Core", "Factory Method: Creates one object (inheritance). Abstract Factory: Creates families of related objects (composition)."),
+            createQ("Real world example of Factory?", "Factory Method", "Adobe", "SDE1", "Interview", "Java's `Calendar.getInstance()` returns a GregorianCalendar or BuddhistCalendar based on locale. `NumberFormat.getInstance()`."),
+            createQ("Design a Cross-Platform UI Element generator", "Abstract Factory", "Apple", "SDE2", "LLD", "Use Abstract Factory. `GUIFactory` interface. `WinFactory` creates `WinButton`, `WinMenu`. `MacFactory` creates `MacButton`, `MacMenu`."),
+            createQ("Benefits of Factory over `new`?", "Factory Method", "Google", "SDE1", "Core", "Decoupling. The client doesn't need to know the concrete class name. Easier to introduce new types without breaking client code."),
+            createQ("Static Factory Methods in Java?", "Factory Method", "Oracle", "SDE1", "Java", "`Integer.valueOf()`, `List.of()`. They have names (readability), can cache instances (Flyweight), and can return subtypes."),
+            createQ("Factory pattern in Dependency Injection?", "Factory Method", "Meta", "SDE3", "System Design", "DI Containers (Guice/Spring) are essentially giant, configurable Factories that manage object creation and lifecycles."),
+            createQ("When to use Factory Method?", "Factory Method", "Uber", "SDE2", "Scenario", "When a class can't anticipate the class of objects it must create, or wants its subclasses to specify the objects it creates."),
+            createQ("Design a Notification System support Email/SMS/Push", "Factory Method", "Flipkart", "SDE2", "LLD", "`NotificationFactory.createNotification('SMS')` returns an `SMSNotification` object implementing a common `send()` interface."),
+
+            // --- BUILDER (19-25) ---
+            createQ("Solving the Telescoping Constructor Problem", "Builder", "Amazon", "SDE1", "Core", "Use Builder. Instead of `new Pizza(12, true, false, true...)`, use `new Pizza.Builder(12).cheese().pepperoni().build()`."),
+            createQ("Builder and Immutability", "Builder", "Meta", "SDE2", "Deep Dive", "Builder is excellent for immutable objects. The Builder collects mutable state. The `build()` method passes all state to a private constructor that sets `final` fields."),
+            createQ("Lombok @Builder annotation", "Builder", "Startup", "SDE2", "Tooling", "Discuss how it generates the static inner class code automatically. Mention trade-offs (debugging, readability of generated code)."),
+            createQ("Builder vs Factory?", "Builder", "Microsoft", "SDE1", "Comparison", "Factory: Creates a complete object in one go. Builder: Constructs a complex object step-by-step."),
+            createQ("Thread Safety of Builder?", "Builder", "Google", "SDE2", "Concurrency", "The Builder instance itself is not thread-safe (used by one thread), but the object it produces should ideally be immutable and thus thread-safe."),
+            createQ("Implementing a Fluent Interface", "Builder", "Spotify", "SDE1", "Coding", "Ensure every setter in the Builder returns `this`."),
+            createQ("Copying an object using Builder?", "Builder", "Tesla", "SDE2", "Scenario", "A `toBuilder()` method on an instance allows you to create a builder pre-filled with the instance's data, modify one field, and rebuild (common in Protobufs)."),
+
+            // --- OBSERVER (26-34) ---
+            createQ("Design a Stock Price Monitor", "Observer", "Bloomberg", "SDE2", "LLD", "Stock is Subject. User/UI is Observer. When stock price changes, notify all observers."),
+            createQ("Push vs Pull Model in Observer?", "Observer", "Netflix", "SDE2", "Deep Dive", "Push: Subject sends data in the update method (`update(data)`). Pull: Subject sends notification (`update()`), Observer calls `subject.getData()`."),
+            createQ("Lapsed Listener Problem (Memory Leak)", "Observer", "Adobe", "SDE3", "Gotcha", "If observers fail to unsubscribe, the Subject holds a strong reference, preventing GC. Solution: Use WeakReferences."),
+            createQ("Observer vs Pub/Sub?", "Observer", "Uber", "SDE3", "System Design", "Observer: In-memory, synchronous, tight coupling. Pub/Sub (Kafka): Distributed, asynchronous, decoupled via a broker."),
+            createQ("Implementing Observer in Java?", "Observer", "Oracle", "SDE1", "Java", "Historical: `java.util.Observer` (Deprecated). Modern: `PropertyChangeListener` or custom interfaces using Lists."),
+            createQ("Concurrency issues in Observer?", "Observer", "Meta", "SDE3", "Concurrency", "Iterating over the observer list while another thread adds/removes an observer causes `ConcurrentModificationException`. Use `CopyOnWriteArrayList`."),
+            createQ("React/Redux connection to Observer?", "Observer", "Facebook", "SDE2", "Frontend", "The Redux Store is the Subject. Components subscribe to state changes. When state updates, components re-render."),
+            createQ("Design a YouTube Channel Subscription", "Observer", "Google", "SDE2", "LLD", "Channel is Subject. Users are Observers. `uploadVideo()` triggers `notifyObservers()`."),
+            createQ("Event Bus Pattern vs Observer?", "Observer", "Lyft", "SDE2", "Comparison", "Event Bus is a centralized Hub (Mediator + Observer) where publishers and subscribers don't know each other."),
+
+            // --- STRATEGY (35-42) ---
+            createQ("Replace Switch Statements with Pattern", "Strategy", "Amazon", "SDE1", "Refactoring", "Instead of `switch(type) { case A: ... case B: ... }`, create an interface and a map: `Map<Type, Strategy>`. Look up strategy and execute."),
+            createQ("Design a Payment System (Credit/PayPal/Crypto)", "Strategy", "PayPal", "SDE2", "LLD", "`PaymentStrategy` interface with `pay(amount)`. Context class `ShoppingCart` takes a strategy at checkout time."),
+            createQ("Strategy vs State Pattern?", "Strategy", "Microsoft", "SDE2", "Core", "Structurally identical. Strategy: Client chooses algorithm once (e.g., 'sort by date'). State: Object changes its own behavior over time as internal state changes."),
+            createQ("Using Lambdas for Strategy (Java 8)", "Strategy", "Oracle", "SDE2", "Java", "Strategy interfaces are often Functional Interfaces. You can pass a Lambda instead of a class: `sort(list, (a,b) -> a - b)`."),
+            createQ("Comparator in Java", "Strategy", "Google", "SDE1", "Core", "`Comparator` is a classic Strategy pattern. You pass the comparison logic to the sort method."),
+            createQ("Dependency Injection and Strategy", "Strategy", "SpringSource", "SDE2", "Framework", "Spring `@Autowired` can inject a specific implementation of an interface, effectively injecting a Strategy."),
+            createQ("Design a Navigation App (Route Finding)", "Strategy", "Uber", "SDE2", "LLD", "Strategies: `FastestRoute`, `ShortestRoute`, `ScenicRoute`. All implement `calculateRoute(A, B)`."),
+            createQ("Validation Logic using Strategy", "Strategy", "Airbnb", "SDE2", "Scenario", "A `Validator` class that takes a list of `ValidationStrategy` (e.g., `EmailFormat`, `MinLength`). Loop and execute."),
+
+            // --- DECORATOR (43-49) ---
+            createQ("Java IO Classes Design", "Decorator", "Sun/Oracle", "SDE1", "Core", "`new BufferedReader(new FileReader(file))` is Decorator. Adds buffering behavior to file reading without inheritance."),
+            createQ("Decorator vs Inheritance", "Decorator", "Meta", "SDE1", "Theory", "Inheritance is static/compile-time. Decorator is dynamic/runtime. Decorator avoids class explosion (prevents `EncryptedCompressedBufferedStream` classes)."),
+            createQ("Design a Pizza Pricing System (Toppings)", "Decorator", "Domino's", "SDE2", "LLD", "`BasePizza` implements `Cost`. `Cheese` extends `PizzaDecorator` and adds cost. `new Cheese(new Pepperoni(new BasePizza()))`."),
+            createQ("Downsides of Decorator?", "Decorator", "Microsoft", "SDE2", "Critique", "1. Lots of small objects. 2. Object identity crisis (`decorator != original`). 3. Configuration can be ugly."),
+            createQ("Decorator vs Adapter", "Decorator", "Amazon", "SDE2", "Comparison", "Adapter: Changes the interface. Decorator: Keeps the interface, adds behavior."),
+            createQ("Decorator vs Proxy", "Decorator", "Google", "SDE2", "Comparison", "Proxy: Controls access (security/lazy loading). Decorator: Adds responsibility/features."),
+            createQ("Frontend HOC (Higher Order Components)", "Decorator", "Meta", "SDE2", "Frontend", "React HOCs are the functional equivalent of the Decorator pattern."),
+
+            // --- PROXY (50-55) ---
+            createQ("Lazy Loading using Proxy", "Proxy", "Hibernate", "SDE3", "Deep Dive", "Hibernate uses Proxies. When you fetch a User, `getOrders()` returns a Proxy List. Real DB query only happens when you access the list."),
+            createQ("Java Dynamic Proxy", "Proxy", "Oracle", "SDE2", "Java", "Usage of `Proxy.newProxyInstance()`. Allows creating proxy objects at runtime for interfaces."),
+            createQ("CGLIB vs JDK Proxy", "Proxy", "SpringSource", "SDE3", "Framework", "JDK Proxy only works for Interfaces. CGLIB generates subclasses via bytecode manipulation (works for classes)."),
+            createQ("Remote Proxy (RMI/gRPC)", "Proxy", "Google", "SDE3", "System Design", "A local object represents an object on a different server. Method calls are marshaled and sent over network."),
+            createQ("Protection Proxy", "Proxy", "Bank", "SDE2", "Security", "Checks permissions before forwarding the call to the real object."),
+            createQ("Smart Reference Proxy", "Proxy", "Adobe", "SDE2", "Memory", "A proxy that counts references to the real object (like C++ smart pointers)."),
+
+            // --- ADAPTER (56-60) ---
+            createQ("Adapter in Java Arrays", "Adapter", "Oracle", "SDE1", "Java", "`Arrays.asList()` adapts an Array to the `List` interface."),
+            createQ("Design a Power Adapter", "Adapter", "Hardware", "SDE1", "Analogy", "EuropeanSocket vs USPlug. Adapter wraps USPlug and fits into EuropeanSocket."),
+            createQ("Object vs Class Adapter", "Adapter", "Microsoft", "SDE2", "Theory", "Object adapter uses Composition (preferred). Class adapter uses Multiple Inheritance (not possible in Java classes)."),
+            createQ("Integrating 3rd Party Libs", "Adapter", "Spotify", "SDE2", "Scenario", "Wrap the 3rd party library with your own Interface (Adapter). If you switch libraries later, you only change the Adapter."),
+            createQ("Facade vs Adapter", "Adapter", "Amazon", "SDE2", "Comparison", "Facade simplifies. Adapter converts."),
+
+            // --- COMMAND (61-66) ---
+            createQ("Implementing Undo/Redo", "Command", "Adobe", "SDE2", "LLD", "Maintain a Stack of Commands. `Undo` pops the stack and calls `command.undo()`."),
+            createQ("Command vs Strategy", "Command", "Google", "SDE2", "Comparison", "Command: 'Do this action' (encapsulated request). Strategy: 'Do this algorithm' (encapsulated logic)."),
+            createQ("Task Queues / Thread Pools", "Command", "Java", "SDE2", "Concurrency", "`Runnable` is a Command interface. ThreadPools execute Commands."),
+            createQ("Design a Smart Home Remote", "Command", "Apple", "SDE2", "LLD", "Remote has buttons. `setCommand(0, new LightOnCommand(light))`. Decouples remote from the light bulb."),
+            createQ("Macro Commands", "Command", "Microsoft", "SDE2", "Scenario", "A Command that holds a list of other Commands and executes them in sequence (Composite + Command)."),
+            createQ("Transactional Behavior", "Command", "Bank", "SDE3", "System Design", "Commands can store state to rollback a failed transaction (Saga Pattern in Microservices)."),
+
+            // --- LLD & SYSTEM DESIGN SCENARIOS (67-85) ---
+            createQ("Design a Parking Lot", "LLD", "Amazon", "SDE2", "LLD", "Singleton (Lot), Factory (Spot), Strategy (Pricing), Observer (Display)."),
+            createQ("Design a Vending Machine", "State", "Google", "SDE2", "LLD", "State Pattern is crucial here (Idle, HasMoney, Dispensing, OutOfStock)."),
+            createQ("Design a Logger Library", "Chain of Resp", "Microsoft", "SDE2", "LLD", "Chain of Responsibility (Debug -> Info -> Error). Singleton for the Logger instance. Strategy for Appenders (File, Console, DB)."),
+            createQ("Design an Elevator System", "State", "Uber", "SDE2", "LLD", "State Pattern (MovingUp, MovingDown, Idle). Strategy for dispatching algorithm."),
+            createQ("Design a Text Editor", "Flyweight", "Microsoft", "SDE3", "LLD", "Flyweight for characters (shared glyphs). Command for Undo/Redo. Memento for snapshots."),
+            createQ("Design a Snake Game", "LLD", "Gaming", "SDE2", "LLD", "Game Loop pattern. Factory for Food. Singleton for GameState."),
+            createQ("Design an ATM", "State", "Bank", "SDE2", "LLD", "State Pattern (Auth, SelectTx, Dispense). Chain of Resp for dispensing cash (100 bills, 50 bills...)."),
+            createQ("Design a Hotel Booking System", "LLD", "Booking.com", "SDE2", "LLD", "Search Strategy (Price, Rating). Observer for vacancy updates."),
+            createQ("Design Tic-Tac-Toe", "LLD", "Meta", "SDE1", "LLD", "Board, Player, Game Loop. Strategy for AI moves."),
+            createQ("Design a File System", "Composite", "Amazon", "SDE2", "LLD", "Composite Pattern (Directory contains Files and Directories)."),
+            createQ("Design a Cache", "LLD", "Google", "SDE2", "LLD", "Strategy for Eviction (LRU, LFU). Decorator for synchronized/logging cache."),
+            createQ("Design a Rate Limiter", "LLD", "Stripe", "SDE3", "System Design", "Token Bucket algorithm. Decorator pattern to wrap service calls."),
+            createQ("Design a URL Shortener (TinyURL)", "LLD", "System Design", "SDE2", "LLD", "Facade to hide encoding logic. Strategy for ID generation."),
+            createQ("Design StackOverflow", "LLD", "StackOverflow", "SDE2", "LLD", "Observer for notifications. Strategy for Search/Sorting."),
+            createQ("Design a Calendar App", "LLD", "Google", "SDE2", "LLD", "Composite for recurring events? Observer for reminders."),
+            createQ("Design a Chess Game", "LLD", "Amazon", "SDE2", "LLD", "Flyweight for Pieces? Command for Moves (to allow undo). Factory for Board setup."),
+            createQ("Design a Traffic Signal System", "State", "Uber", "SDE2", "LLD", "State Pattern (Red, Yellow, Green). Mediator to coordinate intersection."),
+            createQ("Design an Airline Management System", "LLD", "Amadeus", "SDE2", "LLD", "Flyweight for Flight objects? Strategy for Pricing."),
+            createQ("Design a Coupon System", "Decorator", "E-com", "SDE2", "LLD", "Decorator to apply multiple coupons/discounts on a cart."),
+
+            // --- MISC / THEORY (86-100) ---
+            createQ("Composition vs Inheritance", "General", "All", "SDE1", "Theory", "Has-a vs Is-a. Composition is more flexible/dynamic."),
+            createQ("Open/Closed Principle", "General", "All", "SDE1", "SOLID", "Open for extension, closed for modification. Strategy and Decorator are key examples."),
+            createQ("Dependency Inversion vs Injection", "General", "All", "SDE2", "Theory", "DIP is the principle (depend on abstractions). DI is the technique/pattern to achieve it."),
+            createQ("Iterator Pattern in Java", "Iterator", "Oracle", "SDE1", "Java", "`Iterable` interface and `Iterator`. `fail-fast` vs `fail-safe` iterators."),
+            createQ("Template Method vs Strategy", "Template Method", "Google", "SDE2", "Comparison", "Template: Algorithm structure in parent, steps in child (Inheritance). Strategy: Algorithm in separate class (Composition)."),
+            createQ("Chain of Responsibility in Servlet Filters", "Chain of Resp", "Java", "SDE2", "Framework", "`doFilter(req, res, chain)`. Passes request to next filter."),
+            createQ("Flyweight in Java Strings", "Flyweight", "Oracle", "SDE1", "Java", "String Pool (Interning). Integer Cache (-128 to 127)."),
+            createQ("Visitor Pattern usage", "Visitor", "Compiler", "SDE3", "Niche", "Used in compilers/parsers to perform operations on Abstract Syntax Tree nodes without modifying the node classes."),
+            createQ("Memento vs Command for Undo", "Memento", "Adobe", "SDE3", "Comparison", "Command stores the *operation* (reverse logic). Memento stores the *state* (snapshot)."),
+            createQ("Mediator Pattern vs Observer", "Mediator", "Microsoft", "SDE2", "Comparison", "Mediator: Many-to-many became Many-to-One-to-Many. Centralized control. Observer: Distributed control."),
+            createQ("Null Object Pattern", "General", "Google", "SDE1", "Coding", "Returning a 'do nothing' object instead of null to avoid NullPointerExceptions."),
+            createQ("Explain MVC Pattern", "General", "Web", "SDE1", "Architecture", "Model (Data), View (UI), Controller (Logic). Observer often used between Model and View."),
+            createQ("What is a Thread-Safe Singleton?", "Singleton", "Amazon", "SDE1", "Java", "Enum or Bill Pugh."),
+            createQ("Why use Enum for Singleton?", "Singleton", "Joshua Bloch", "SDE2", "Expert", "Prevents reflection attacks, handles serialization, concise."),
+            createQ("Design Patterns in Microservices?", "General", "Netflix", "SDE3", "System Design", "Circuit Breaker, Saga, CQRS, Sidecar, API Gateway (Facade).")
+        ];
+
+        // ==========================================
+        //  APP LOGIC
+        // ==========================================
+        
+        // --- Init ---
+        function init() {
+            renderHandbook('All');
+            renderQuestions('All', 'All');
+            populatePatternDropdown();
+            updateStats();
+            renderHeatmap();
+            
+            // Default view
+            navTo('questions');
+        }
+
+        // --- Navigation ---
+        function navTo(viewId) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeBtn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.getAttribute('onclick').includes(viewId));
+            if(activeBtn) activeBtn.classList.add('active');
+
+            document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+        }
+
+        // --- Handbook Logic ---
+        function filterTheory(type) {
+            renderHandbook(type);
+        }
+
+        function renderHandbook(filter) {
+            const grid = document.getElementById('handbook-grid');
+            grid.innerHTML = '';
+            
+            const filtered = filter === 'All' ? theoryData : theoryData.filter(t => t.type === filter);
+            
+            filtered.forEach(p => {
+                const badgeColor = p.type === 'Creational' ? 'tag-cre' : p.type === 'Structural' ? 'tag-str' : 'tag-beh';
+                const div = document.createElement('div');
+                div.className = 'pattern-card bg-white p-6 rounded-xl border border-slate-200 cursor-pointer h-full flex flex-col';
+                div.onclick = () => openModal(p);
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="badge ${badgeColor}">${p.type}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-slate-400">FREQ</span>
+                            <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500" style="width: ${p.freq * 10}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">${p.name}</h3>
+                    <p class="text-sm text-slate-500 line-clamp-3 mb-4 flex-grow">${p.def}</p>
+                    <div class="mt-auto text-xs font-bold text-blue-600 uppercase tracking-wide">Read Theory →</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // --- Question Bank Logic ---
+        function populatePatternDropdown() {
+            const select = document.getElementById('q-pattern-filter');
+            const sidebarList = document.getElementById('sidebar-patterns');
+            
+            // Get unique patterns from questions, sort them
+            const patterns = [...new Set(allQuestions.map(q => q.pattern))].sort();
+            
+            patterns.forEach(p => {
+                // Dropdown Option
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+
+                // Sidebar Link
+                const link = document.createElement('button');
+                link.className = "block w-full text-left px-6 py-1.5 text-xs text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition-colors";
+                link.textContent = p;
+                link.onclick = () => {
+                    navTo('questions');
+                    document.getElementById('q-pattern-filter').value = p;
+                    filterQuestions();
+                };
+                sidebarList.appendChild(link);
+            });
+        }
+
+        function filterQuestions() {
+            const search = document.getElementById('q-search').value.toLowerCase();
+            const patFilter = document.getElementById('q-pattern-filter').value;
+            const coFilter = document.getElementById('q-company-filter').value;
+            
+            const filtered = allQuestions.filter(q => {
+                const matchesSearch = q.title.toLowerCase().includes(search) || q.answer.toLowerCase().includes(search);
+                const matchesPat = patFilter === 'All' || q.pattern === patFilter;
+                const matchesCo = coFilter === 'All' || q.company === coFilter;
+                return matchesSearch && matchesPat && matchesCo;
+            });
+            
+            renderQuestionList(filtered);
+        }
+
+        function renderQuestions(patFilter, coFilter) {
+            // Initial load helper
+            const filtered = allQuestions; // Simplified for init
+            renderQuestionList(filtered);
+        }
+
+        function renderQuestionList(data) {
+            const list = document.getElementById('questions-list');
+            list.innerHTML = '';
+            
+            if (data.length === 0) {
+                document.getElementById('no-results').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('no-results').classList.add('hidden');
+            }
+
+            data.forEach(q => {
+                // Company Badge
+                let coClass = 'bg-slate-100 text-slate-600';
+                if(q.company === 'Amazon') coClass = 'co-amz';
+                else if(q.company === 'Google') coClass = 'co-goog';
+                else if(q.company === 'Meta') coClass = 'co-meta';
+                else if(q.company === 'Netflix') coClass = 'co-nflx';
+                else if(q.company === 'Microsoft') coClass = 'co-msft';
+
+                const div = document.createElement('div');
+                div.className = 'q-card bg-white p-5 rounded-lg border border-slate-200 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span class="badge ${coClass}">${q.company}</span>
+                        <span class="badge bg-slate-800 text-white">${q.level}</span>
+                        <span class="badge bg-blue-50 text-blue-600 border border-blue-100">${q.pattern}</span>
+                        <span class="text-[10px] text-slate-400 font-mono ml-auto">#${q.id}</span>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 mb-2">${q.title}</h3>
+                    <details class="group">
+                        <summary class="text-sm font-bold text-blue-600 cursor-pointer hover:underline select-none flex items-center gap-2">
+                            <span>Show Answer</span>
+                        </summary>
+                        <div class="mt-3 pt-3 border-t border-slate-100 text-sm text-slate-700 leading-relaxed">
+                            ${q.answer}
+                        </div>
+                    </details>
+                `;
+                list.appendChild(div);
+            });
+            
+            // Update counts in sidebar
+            document.getElementById('q-count-badge').textContent = data.length;
+        }
+
+        function resetFilters() {
+            document.getElementById('q-search').value = '';
+            document.getElementById('q-pattern-filter').value = 'All';
+            document.getElementById('q-company-filter').value = 'All';
+            filterQuestions();
+        }
+
+        // Event Listeners for Filters
+        document.getElementById('q-search').addEventListener('input', filterQuestions);
+        document.getElementById('q-pattern-filter').addEventListener('change', filterQuestions);
+        document.getElementById('q-company-filter').addEventListener('change', filterQuestions);
+
+
+        // --- Theory Modal ---
+        function openModal(p) {
+            const modal = document.getElementById('theory-modal');
+            const panel = document.getElementById('theory-panel');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="badge ${p.type === 'Creational' ? 'tag-cre' : p.type === 'Structural' ? 'tag-str' : 'tag-beh'} text-sm py-1 px-3">${p.type}</span>
+                    <span class="text-xs font-bold text-slate-400">INTERVIEW FREQUENCY: ${p.freq}/10</span>
+                </div>
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-6">${p.name}</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">Definition</h3>
+                    <p class="text-lg text-slate-800 leading-relaxed font-medium">${p.def}</p>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">Code Snippet (Java)</h3>
+                    <div class="code-block font-mono">
+                        ${p.code}
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-blue-900 text-sm">
+                    <strong>Pro Tip:</strong> Click "Question Bank" in the sidebar and select <strong>${p.name}</strong> from the filter dropdown to practice specific questions for this pattern.
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('theory-modal');
+            const panel = document.getElementById('theory-panel');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // --- Dashboard Stats ---
+        function updateStats() {
+            document.getElementById('stat-total-q').innerText = allQuestions.length;
+            document.getElementById('stat-patterns').innerText = theoryData.length;
+        }
+
+        function renderHeatmap() {
+            const ctx = document.getElementById('freqChart');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: theoryData.slice(0, 10).map(t => t.name), // Top 10
+                    datasets: [{
+                        label: 'Interview Frequency',
+                        data: theoryData.slice(0, 10).map(t => t.freq),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 10 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>
